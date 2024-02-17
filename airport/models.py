@@ -6,9 +6,15 @@ class Airport(models.Model):
     name = models.CharField(max_length=100)
     closest_big_city = models.CharField(max_length=255)
 
+    def __str__(self):
+        return self.name
+
 
 class AirplaneType(models.Model):
     name = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.name
 
 
 class Airplane(models.Model):
@@ -21,10 +27,16 @@ class Airplane(models.Model):
         related_name="airplanes"
     )
 
+    def __str__(self):
+        return self.name
+
 
 class Crew(models.Model):
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
+
+    def __str__(self):
+        return f"{self.first_name} {self.last_name}"
 
 
 class Order(models.Model):
@@ -35,11 +47,31 @@ class Order(models.Model):
         related_name="orders"
     )
 
+    def __str__(self):
+        return f"created_at: {self.created_at}"
+
+    class Meta:
+        ordering = ["created_at"]
+
 
 class Route(models.Model):
-    source = models.ForeignKey(Airport, on_delete=models.CASCADE)
-    destination = models.ForeignKey(Airport, on_delete=models.CASCADE)
+    source = models.ForeignKey(
+        Airport, on_delete=models.CASCADE,
+        related_name="departures"
+    )
+    destination = models.ForeignKey(
+        Airport,
+        on_delete=models.CASCADE,
+        related_name="arrivals"
+    )
     distance = models.IntegerField()
+
+    def __str__(self):
+        return (f"source: {self.source.name}, "
+                f"destination: {self.destination.name}")
+
+    class Meta:
+        unique_together = ["source", "destination"]
 
 
 class Flight(models.Model):
@@ -60,6 +92,7 @@ class Flight(models.Model):
 
     class Meta:
         default_related_name = "flights"
+        ordering = ["departure_time"]
 
 
 class Ticket(models.Model):
@@ -73,6 +106,9 @@ class Ticket(models.Model):
         Order,
         on_delete=models.CASCADE
     )
+
+    def __str__(self):
+        return f"row: {self.row}, seat: {self.seat}"
 
     class Meta:
         default_related_name = "tickets"
