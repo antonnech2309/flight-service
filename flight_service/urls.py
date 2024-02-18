@@ -3,4 +3,5 @@ from django.urls import path
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path("api/airport/", include("airport.urls", namespace="airport")),
 ]
