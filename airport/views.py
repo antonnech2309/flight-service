@@ -1,9 +1,8 @@
-from django.shortcuts import render
 from rest_framework import viewsets
 
-from airport.models import Airport, AirplaneType, Airplane, Crew
+from airport.models import Airport, AirplaneType, Airplane, Crew, Route
 from airport.serializers import AirportSerializer, AirplaneTypeSerializer, AirplaneSerializer, AirplaneListSerializer, \
-    CrewSerializer
+    CrewSerializer, RouteSerializer, RouteListSerializer
 
 
 class AirportViewSet(viewsets.ModelViewSet):
@@ -31,3 +30,16 @@ class AirplaneViewSet(viewsets.ModelViewSet):
 class CrewViewSet(viewsets.ModelViewSet):
     queryset = Crew.objects.all()
     serializer_class = CrewSerializer
+
+
+class RouteViewSet(viewsets.ModelViewSet):
+    queryset = Route.objects.all()
+    serializer_class = RouteSerializer
+
+    def get_serializer_class(self):
+        serializer = self.serializer_class
+
+        if self.action == "list":
+            serializer = RouteListSerializer
+
+        return serializer
