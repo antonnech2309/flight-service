@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from airport.models import Airport, AirplaneType, Airplane, Crew, Route, Order
+from airport.models import Airport, AirplaneType, Airplane, Crew, Route, Order, Ticket, Flight
 
 
 class AirportSerializer(serializers.ModelSerializer):
@@ -40,6 +40,58 @@ class RouteSerializer(serializers.ModelSerializer):
 class RouteListSerializer(RouteSerializer):
     source = AirportSerializer(many=False)
     destination = AirportSerializer(many=False)
+
+
+# class TicketSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = Ticket
+#         fields = ["id", "row", "seat", "flight"]
+#
+#
+# class TicketListSerializer(TicketSerializer):
+#     flight = FlightSerializer(many=False)
+
+
+class FlightSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Flight
+        fields = ["id", "route", "airplane", "departure_time", "arrival_time"]
+
+
+class FlightListSerializer(serializers.ModelSerializer):
+    flight_source = serializers.CharField(
+        source="route.source.name",
+        read_only=True
+    )
+    flight_destination = serializers.CharField(
+        source="route.destination.name",
+        read_only=True
+    )
+    flight_distance = serializers.IntegerField(
+        source="route.distance",
+        read_only=True
+    )
+    airplane_name = serializers.CharField(
+        source="airplane.name",
+        read_only=True
+    )
+
+    class Meta:
+        model = Flight
+        fields = [
+            "id",
+            "flight_source",
+            "flight_destination",
+            "flight_distance",
+            "airplane_name",
+            "departure_time",
+            "arrival_time"
+        ]
+
+
+class FlightDetailSerializer(FlightSerializer):
+    route = RouteListSerializer(many=False)
+    airplane = AirplaneListSerializer(many=False)
 
 
 class OrderSerializer(serializers.ModelSerializer):
