@@ -51,7 +51,7 @@ class Order(models.Model):
         return f"created_at: {self.created_at}"
 
     class Meta:
-        ordering = ["created_at"]
+        ordering = ["-created_at"]
 
 
 class Route(models.Model):
