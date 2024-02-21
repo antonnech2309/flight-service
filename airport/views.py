@@ -1,4 +1,6 @@
 from rest_framework import viewsets
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.permissions import IsAuthenticated
 
 from airport.models import Airport, AirplaneType, Airplane, Crew, Route, Order, Flight, Ticket
 from airport.serializers import AirportSerializer, AirplaneTypeSerializer, AirplaneSerializer, AirplaneListSerializer, \
@@ -9,6 +11,8 @@ from airport.serializers import AirportSerializer, AirplaneTypeSerializer, Airpl
 class AirportViewSet(viewsets.ModelViewSet):
     queryset = Airport.objects.all()
     serializer_class = AirportSerializer
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated,)
 
 
 class AirplaneTypeViewSet(viewsets.ModelViewSet):
