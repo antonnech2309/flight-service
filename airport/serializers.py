@@ -23,7 +23,7 @@ class AirplaneSerializer(serializers.ModelSerializer):
 
 
 class AirplaneListSerializer(AirplaneSerializer):
-    airplane_type = AirplaneTypeSerializer(many=False)
+    airplane_type = AirplaneTypeSerializer(many=False, read_only=True)
 
 
 class CrewSerializer(serializers.ModelSerializer):
@@ -39,14 +39,21 @@ class RouteSerializer(serializers.ModelSerializer):
 
 
 class RouteListSerializer(RouteSerializer):
-    source = AirportSerializer(many=False)
-    destination = AirportSerializer(many=False)
+    source = AirportSerializer(many=False, read_only=True)
+    destination = AirportSerializer(many=False, read_only=True)
 
 
 class FlightSerializer(serializers.ModelSerializer):
     class Meta:
         model = Flight
-        fields = ("id", "route", "airplane", "departure_time", "arrival_time")
+        fields = (
+            "id",
+            "route",
+            "airplane",
+            "departure_time",
+            "arrival_time",
+            "crew"
+        )
 
 
 class FlightListSerializer(serializers.ModelSerializer):
@@ -81,8 +88,9 @@ class FlightListSerializer(serializers.ModelSerializer):
 
 
 class FlightDetailSerializer(FlightSerializer):
-    route = RouteListSerializer(many=False)
-    airplane = AirplaneListSerializer(many=False)
+    route = RouteListSerializer(many=False, read_only=True)
+    airplane = AirplaneListSerializer(many=False, read_only=True)
+    crew = CrewSerializer(many=True, read_only=True)
 
 
 class TicketSerializer(serializers.ModelSerializer):
@@ -92,7 +100,7 @@ class TicketSerializer(serializers.ModelSerializer):
 
 
 class TicketListSerializer(TicketSerializer):
-    flight = FlightListSerializer(many=False)
+    flight = FlightListSerializer(many=False, read_only=True)
 
 
 class OrderSerializer(serializers.ModelSerializer):
