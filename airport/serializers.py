@@ -76,7 +76,7 @@ class FlightListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Flight
-        fields = [
+        fields = (
             "id",
             "flight_source",
             "flight_destination",
@@ -84,7 +84,7 @@ class FlightListSerializer(serializers.ModelSerializer):
             "airplane_name",
             "departure_time",
             "arrival_time"
-        ]
+        )
 
 
 class FlightDetailSerializer(FlightSerializer):
@@ -93,13 +93,31 @@ class FlightDetailSerializer(FlightSerializer):
     crew = CrewSerializer(many=True, read_only=True)
 
 
+class FlightNameSerializer(FlightListSerializer):
+    class Meta:
+        model = Flight
+        fields = (
+            "id",
+            "flight_source",
+            "flight_destination",
+        )
+
+
 class TicketSerializer(serializers.ModelSerializer):
     class Meta:
         model = Ticket
         fields = ("id", "row", "seat", "flight")
 
 
-class TicketListSerializer(TicketSerializer):
+class TicketListSerializer(serializers.ModelSerializer):
+    flight = FlightNameSerializer(many=False, read_only=True)
+
+    class Meta:
+        model = Ticket
+        fields = ("id", "row", "seat", "flight")
+
+
+class TicketDetailSerializer(TicketSerializer):
     flight = FlightListSerializer(many=False, read_only=True)
 
 
@@ -121,3 +139,7 @@ class OrderSerializer(serializers.ModelSerializer):
 
 class OrderListSerializer(OrderSerializer):
     tickets = TicketListSerializer(many=True, read_only=True)
+
+
+class OrderDetailSerializer(OrderSerializer):
+    tickets = TicketDetailSerializer(many=True, read_only=True)

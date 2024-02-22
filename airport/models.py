@@ -101,7 +101,7 @@ class Ticket(models.Model):
     seat = models.IntegerField()
     flight = models.ForeignKey(
         Flight,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
     )
     order = models.ForeignKey(
         Order,

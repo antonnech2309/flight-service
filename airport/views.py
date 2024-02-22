@@ -2,10 +2,10 @@ from rest_framework import viewsets
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 
-from airport.models import Airport, AirplaneType, Airplane, Crew, Route, Order, Flight, Ticket
+from airport.models import Airport, AirplaneType, Airplane, Crew, Route, Order, Flight
 from airport.serializers import AirportSerializer, AirplaneTypeSerializer, AirplaneSerializer, AirplaneListSerializer, \
     CrewSerializer, RouteSerializer, RouteListSerializer, OrderSerializer, FlightSerializer, FlightListSerializer, \
-    FlightDetailSerializer, TicketSerializer, TicketListSerializer, OrderListSerializer
+    FlightDetailSerializer, OrderListSerializer, OrderDetailSerializer
 
 
 class AirportViewSet(viewsets.ModelViewSet):
@@ -21,16 +21,8 @@ class AirplaneTypeViewSet(viewsets.ModelViewSet):
 
 
 class AirplaneViewSet(viewsets.ModelViewSet):
-    queryset = Airplane.objects.all()
+    queryset = Airplane.objects.select_related("airplane_type")
     serializer_class = AirplaneSerializer
-
-    def get_queryset(self):
-        queryset = self.queryset
-
-        if self.action in ("list", "retrieve"):
-            queryset = queryset.select_related("airplane_type")
-
-        return queryset
 
     def get_serializer_class(self):
         serializer = self.serializer_class
@@ -46,17 +38,8 @@ class CrewViewSet(viewsets.ModelViewSet):
 
 
 class RouteViewSet(viewsets.ModelViewSet):
-    queryset = Route.objects.all()
+    queryset = Route.objects.select_related("source", "destination")
     serializer_class = RouteSerializer
-
-    def get_queryset(self):
-        queryset = self.queryset
-
-        if self.action in ("list", "retrieve"):
-            queryset = queryset.select_related("source", "destination")
-
-        return queryset
-
 
     def get_serializer_class(self):
         serializer = self.serializer_class
@@ -68,17 +51,23 @@ class RouteViewSet(viewsets.ModelViewSet):
 
 
 class OrderViewSet(viewsets.ModelViewSet):
-    queryset = Order.objects.all()
+    queryset = Order.objects.prefetch_related(
+        "tickets__flight__route__source",
+        "tickets__flight__route__destination"
+    )
     serializer_class = OrderSerializer
 
     def get_queryset(self):
-        return Order.objects.filter(user=self.request.user.id)
+        return self.queryset.filter(user=self.request.user)
 
     def get_serializer_class(self):
         serializer = self.serializer_class
 
-        if self.action in ("list", "retrieve"):
+        if self.action == "list":
             serializer = OrderListSerializer
+
+        if self.action == "retrieve":
+            serializer = OrderDetailSerializer
 
         return serializer
 
