@@ -11,8 +11,8 @@ from airport.serializers import AirportSerializer, AirplaneTypeSerializer, Airpl
 class AirportViewSet(viewsets.ModelViewSet):
     queryset = Airport.objects.all()
     serializer_class = AirportSerializer
-    authentication_classes = (TokenAuthentication,)
-    permission_classes = (IsAuthenticated,)
+    # authentication_classes = (TokenAuthentication,)
+    # permission_classes = (IsAuthenticated,)
 
 
 class AirplaneTypeViewSet(viewsets.ModelViewSet):
@@ -23,6 +23,14 @@ class AirplaneTypeViewSet(viewsets.ModelViewSet):
 class AirplaneViewSet(viewsets.ModelViewSet):
     queryset = Airplane.objects.all()
     serializer_class = AirplaneSerializer
+
+    def get_queryset(self):
+        queryset = self.queryset
+
+        if self.action in ("list", "retrieve"):
+            queryset = queryset.select_related("airplane_type")
+
+        return queryset
 
     def get_serializer_class(self):
         serializer = self.serializer_class
@@ -41,6 +49,15 @@ class RouteViewSet(viewsets.ModelViewSet):
     queryset = Route.objects.all()
     serializer_class = RouteSerializer
 
+    def get_queryset(self):
+        queryset = self.queryset
+
+        if self.action in ("list", "retrieve"):
+            queryset = queryset.select_related("source", "destination")
+
+        return queryset
+
+
     def get_serializer_class(self):
         serializer = self.serializer_class
 
@@ -55,10 +72,7 @@ class OrderViewSet(viewsets.ModelViewSet):
     serializer_class = OrderSerializer
 
     def get_queryset(self):
-        return Order.objects.filter(user=self.request.user)
-
-    def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
+        return Order.objects.filter(user=self.request.user.id)
 
     def get_serializer_class(self):
         serializer = self.serializer_class
@@ -67,6 +81,9 @@ class OrderViewSet(viewsets.ModelViewSet):
             serializer = OrderListSerializer
 
         return serializer
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
 
 
 class FlightViewSet(viewsets.ModelViewSet):
