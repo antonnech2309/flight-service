@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.db import models
+from rest_framework.exceptions import ValidationError
 
 
 class Airport(models.Model):
@@ -113,3 +114,28 @@ class Ticket(models.Model):
 
     class Meta:
         default_related_name = "tickets"
+        unique_together = ("seat", "row", "flight")
+
+    @staticmethod
+    def validate_seat(
+            seat: int,
+            num_seats: int,
+            row: int,
+            num_rows: int,
+            error_to_raise
+    ):
+        if not (1 <= seat <= num_seats):
+            raise error_to_raise({
+                "seat": f"seat must be in the range [1, {num_seats}]"
+            })
+
+        if not (1 <= row <= num_rows):
+            raise error_to_raise({
+                "row": f"row must be in the range [1, {num_rows}]"
+            })
+
+    def clean(self):
+        Ticket.validate_seat(
+            self.seat, self.flight.airplane.seats_in_row,
+            self.row, self.flight.airplane.rows, ValidationError
+        )
