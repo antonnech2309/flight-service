@@ -1,5 +1,6 @@
 from datetime import datetime
 
+from django.db.models import Count, F
 from rest_framework import viewsets
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
@@ -190,6 +191,18 @@ class FlightViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(
                 departure_time__icontains=departure_date
             )
+
+        if self.action == "list":
+            queryset = (
+                queryset
+                .select_related("airplane")
+                .annotate(
+                    tickets_available=
+                    F("airplane__rows") *
+                    F("airplane__seats_in_row") -
+                    Count("tickets")
+                )
+            ).order_by("id")
 
         return queryset
 
