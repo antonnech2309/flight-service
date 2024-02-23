@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from rest_framework import viewsets
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
@@ -132,7 +134,15 @@ class OrderViewSet(viewsets.ModelViewSet):
     serializer_class = OrderSerializer
 
     def get_queryset(self):
-        return self.queryset.filter(user=self.request.user.id)
+        date = self.request.query_params.get("date")
+
+        queryset = self.queryset
+
+        if date:
+            date = datetime.strptime(date, "%Y-%m-%d").date()
+            queryset = queryset.filter(created_at__date=date)
+
+        return queryset.filter(user=self.request.user.id)
 
     def get_serializer_class(self):
         serializer = self.serializer_class
@@ -156,6 +166,32 @@ class FlightViewSet(viewsets.ModelViewSet):
         "airplane"
     )
     serializer_class = FlightSerializer
+
+    def get_queryset(self):
+        source = self.request.query_params.get("source")
+        destination = self.request.query_params.get("destination")
+        departure_date = self.request.query_params.get("departure_date")
+
+        queryset = self.queryset
+
+        if source:
+            queryset = queryset.filter(route__source__name__icontains=source)
+
+        if destination:
+            queryset = queryset.filter(
+                route__destination__name__icontains=destination
+            )
+
+        if departure_date:
+            departure_date = datetime.strptime(
+                departure_date,
+                "%Y-%m-%d"
+            ).date()
+            queryset = queryset.filter(
+                departure_time__icontains=departure_date
+            )
+
+        return queryset
 
     def get_serializer_class(self):
         serializer = self.serializer_class
