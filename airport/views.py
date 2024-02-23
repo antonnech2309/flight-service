@@ -98,6 +98,23 @@ class RouteViewSet(viewsets.ModelViewSet):
     queryset = Route.objects.select_related("source", "destination")
     serializer_class = RouteSerializer
 
+    def get_queryset(self):
+        """Retrieve the crews with first_name and last_name"""
+        source = self.request.query_params.get("source")
+        destination = self.request.query_params.get("destination")
+
+        queryset = self.queryset
+
+        if source:
+            queryset = queryset.filter(source__name__icontains=source)
+
+        if destination:
+            queryset = queryset.filter(
+                destination__name__icontains=destination
+            )
+
+        return queryset.distinct()
+
     def get_serializer_class(self):
         serializer = self.serializer_class
 
