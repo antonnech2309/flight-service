@@ -78,20 +78,20 @@ class CrewViewSet(viewsets.ModelViewSet):
     queryset = Crew.objects.all()
     serializer_class = CrewSerializer
 
-    # def get_queryset(self):
-    #     """Retrieve the crews with first_name and last_name"""
-    #     first_name = self.request.query_params.get("first_name")
-    #     last_name = self.request.query_params.get("last_name")
-    #
-    #     queryset = self.queryset
-    #
-    #     if first_name:
-    #         queryset = queryset.filter(first_name__icontains=first_name)
-    #
-    #     if last_name:
-    #         queryset = queryset.filter(last_name__icontains=last_name)
-    #
-    #     return queryset.distinct()
+    def get_queryset(self):
+        """Retrieve the crews with first_name and last_name"""
+        first_name = self.request.query_params.get("first_name")
+        last_name = self.request.query_params.get("last_name")
+
+        queryset = self.queryset
+
+        if first_name:
+            queryset = queryset.filter(first_name__icontains=first_name)
+
+        if last_name:
+            queryset = queryset.filter(last_name__icontains=last_name)
+
+        return queryset.distinct()
 
 
 class RouteViewSet(viewsets.ModelViewSet):
