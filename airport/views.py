@@ -55,7 +55,7 @@ class AirplaneTypeViewSet(viewsets.ModelViewSet):
 
 
 class AirplaneViewSet(viewsets.ModelViewSet):
-    queryset = Airplane.objects.select_related("airplane_type")
+    queryset = Airplane.objects.all()
     serializer_class = AirplaneSerializer
 
     def get_queryset(self):
@@ -66,6 +66,9 @@ class AirplaneViewSet(viewsets.ModelViewSet):
 
         if name:
             queryset = queryset.filter(name__icontains=name)
+
+        if self.action in ("list", "retrieve"):
+            queryset = queryset.select_related("airplane_type")
 
         return queryset.distinct()
 
@@ -98,7 +101,7 @@ class CrewViewSet(viewsets.ModelViewSet):
 
 
 class RouteViewSet(viewsets.ModelViewSet):
-    queryset = Route.objects.select_related("source", "destination")
+    queryset = Route.objects.all()
     serializer_class = RouteSerializer
 
     def get_queryset(self):
@@ -116,6 +119,9 @@ class RouteViewSet(viewsets.ModelViewSet):
                 destination__name__icontains=destination
             )
 
+        if self.action in ("list", "retrieve"):
+            queryset = queryset.select_related("source", "destination")
+
         return queryset.distinct()
 
     def get_serializer_class(self):
@@ -128,10 +134,7 @@ class RouteViewSet(viewsets.ModelViewSet):
 
 
 class OrderViewSet(viewsets.ModelViewSet):
-    queryset = Order.objects.prefetch_related(
-        "tickets__flight__route__source",
-        "tickets__flight__route__destination"
-    )
+    queryset = Order.objects.all()
     serializer_class = OrderSerializer
 
     def get_queryset(self):
@@ -142,6 +145,12 @@ class OrderViewSet(viewsets.ModelViewSet):
         if date:
             date = datetime.strptime(date, "%Y-%m-%d").date()
             queryset = queryset.filter(created_at__date=date)
+
+        if self.action in ("list", "retrieve"):
+            queryset = queryset.prefetch_related(
+                "tickets__flight__route__source",
+                "tickets__flight__route__destination"
+            )
 
         return queryset.filter(user=self.request.user.id)
 
@@ -161,11 +170,7 @@ class OrderViewSet(viewsets.ModelViewSet):
 
 
 class FlightViewSet(viewsets.ModelViewSet):
-    queryset = Flight.objects.select_related(
-        "route__source",
-        "route__destination",
-        "airplane"
-    )
+    queryset = Flight.objects.all()
     serializer_class = FlightSerializer
 
     def get_queryset(self):
@@ -192,10 +197,17 @@ class FlightViewSet(viewsets.ModelViewSet):
                 departure_time__icontains=departure_date
             )
 
-        if self.action == "list":
+        if self.action == "retrieve":
+            queryset = queryset.prefetch_related("crew")
+
+        if self.action in ("list", "retrieve"):
             queryset = (
                 queryset
-                .select_related("airplane")
+                .select_related(
+                    "route__source",
+                    "route__destination",
+                    "airplane"
+                )
                 .annotate(
                     tickets_available=
                     F("airplane__rows") *

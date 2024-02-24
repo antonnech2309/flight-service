@@ -99,6 +99,7 @@ class FlightDetailSerializer(FlightSerializer):
         read_only=True,
         slug_field="seat"
     )
+    tickets_available = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Flight
@@ -109,7 +110,8 @@ class FlightDetailSerializer(FlightSerializer):
             "departure_time",
             "arrival_time",
             "crew",
-            "taken_seats"
+            "taken_seats",
+            "tickets_available"
         )
 
 
