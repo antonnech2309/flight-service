@@ -51,7 +51,7 @@ class Order(models.Model):
         return f"created_at: {self.created_at}"
 
     class Meta:
-        ordering = ["created_at"]
+        ordering = ["-created_at"]
 
 
 class Route(models.Model):
@@ -85,6 +85,7 @@ class Flight(models.Model):
     )
     departure_time = models.DateTimeField()
     arrival_time = models.DateTimeField()
+    crew = models.ManyToManyField(Crew)
 
     def __str__(self):
         return (f"{self.airplane.name}-"
@@ -100,7 +101,7 @@ class Ticket(models.Model):
     seat = models.IntegerField()
     flight = models.ForeignKey(
         Flight,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
     )
     order = models.ForeignKey(
         Order,
