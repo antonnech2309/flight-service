@@ -89,16 +89,17 @@ class FlightListSerializer(serializers.ModelSerializer):
         )
 
 
+class TicketShowSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Ticket
+        fields = ("id", "row", "seat")
+
+
 class FlightDetailSerializer(FlightSerializer):
     route = RouteListSerializer(many=False, read_only=True)
     airplane = AirplaneListSerializer(many=False, read_only=True)
     crew = CrewSerializer(many=True, read_only=True)
-    taken_seats = serializers.SlugRelatedField(
-        source="tickets",
-        many=True,
-        read_only=True,
-        slug_field="seat"
-    )
+    taken_seats = TicketShowSerializer(many=True, read_only=True)
     tickets_available = serializers.IntegerField(read_only=True)
 
     class Meta:

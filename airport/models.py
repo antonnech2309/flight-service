@@ -103,6 +103,7 @@ class Ticket(models.Model):
     flight = models.ForeignKey(
         Flight,
         on_delete=models.CASCADE,
+        related_name="taken_seats"
     )
     order = models.ForeignKey(
         Order,

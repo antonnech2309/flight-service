@@ -212,7 +212,7 @@ class FlightViewSet(viewsets.ModelViewSet):
                     tickets_available=
                     F("airplane__rows") *
                     F("airplane__seats_in_row") -
-                    Count("tickets")
+                    Count("taken_seats")
                 )
             ).order_by("id")
 
