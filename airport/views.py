@@ -1,8 +1,8 @@
 from datetime import datetime
 
 from django.db.models import Count, F
+from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework import viewsets, status, mixins
-from rest_framework.authentication import TokenAuthentication
 from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAdminUser
@@ -55,6 +55,19 @@ class AirportViewSet(viewsets.ModelViewSet):
 
         return queryset.distinct()
 
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(
+                "name",
+                type=str,
+                description="Filter by airport name "
+                            "(ex. ?name='Boruspil')",
+            )
+        ]
+    )
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+
 
 class AirplaneTypeViewSet(viewsets.ModelViewSet):
     queryset = AirplaneType.objects.all()
@@ -82,6 +95,19 @@ class AirplaneViewSet(viewsets.ModelViewSet):
             queryset = queryset.select_related("airplane_type")
 
         return queryset.distinct()
+
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(
+                "name",
+                type=str,
+                description="Filter by airplane name "
+                            "(ex. ?name='Boeing')",
+            )
+        ]
+    )
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
 
     def get_serializer_class(self):
         serializer = self.serializer_class
@@ -134,6 +160,25 @@ class CrewViewSet(
 
         return queryset.distinct()
 
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(
+                "first_name",
+                type=str,
+                description="Filter by crew first_name "
+                            "(ex. ?first_name='Maks')",
+            ),
+            OpenApiParameter(
+                "last_name",
+                type=str,
+                description="Filter by crew last_name "
+                            "(ex. ?last_name='Kravchenko')",
+            )
+        ]
+    )
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+
 
 class RouteViewSet(
     mixins.CreateModelMixin,
@@ -164,6 +209,24 @@ class RouteViewSet(
             queryset = queryset.select_related("source", "destination")
 
         return queryset.distinct()
+
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(
+                "source",
+                type=str,
+                description="Filter by route source (ex. ?source='Boruspil')",
+            ),
+            OpenApiParameter(
+                "destination",
+                type=str,
+                description="Filter by route destination"
+                            " (ex. ?destination='Boruspil')",
+            ),
+        ]
+    )
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
 
     def get_serializer_class(self):
         serializer = self.serializer_class
@@ -207,6 +270,19 @@ class OrderViewSet(
             )
 
         return queryset.filter(user=self.request.user.id)
+
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(
+                "date",
+                type=str,
+                description="Filter by order date"
+                            " (ex. ?date='2024-02-25')"
+            )
+        ]
+    )
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
 
     def get_serializer_class(self):
         serializer = self.serializer_class
@@ -273,6 +349,30 @@ class FlightViewSet(viewsets.ModelViewSet):
             ).order_by("id")
 
         return queryset
+
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(
+                "source",
+                type=str,
+                description="Filter by flight source (ex. ?source='Boruspil')",
+            ),
+            OpenApiParameter(
+                "destination",
+                type=str,
+                description="Filter by flight "
+                            "destination (ex. ?destination='Boruspil')",
+            ),
+            OpenApiParameter(
+                "departure_date",
+                type=str,
+                description="Filter by flight departure_date"
+                            " (ex. ?departure_date='2024-02-25')"
+            )
+        ]
+    )
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
 
     def get_serializer_class(self):
         serializer = self.serializer_class
