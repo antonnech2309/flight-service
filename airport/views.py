@@ -1,12 +1,13 @@
 from datetime import datetime
 
 from django.db.models import Count, F
-from rest_framework import viewsets, status
+from rest_framework import viewsets, status, mixins
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
+from rest_framework.viewsets import GenericViewSet
 
 from airport.models import (
     Airport,
@@ -30,15 +31,14 @@ from airport.serializers import (
     FlightListSerializer,
     FlightDetailSerializer,
     OrderListSerializer,
-    OrderDetailSerializer, AirplaneImageSerializer
+    OrderDetailSerializer,
+    AirplaneImageSerializer
 )
 
 
 class AirportViewSet(viewsets.ModelViewSet):
     queryset = Airport.objects.all()
     serializer_class = AirportSerializer
-    # authentication_classes = (TokenAuthentication,)
-    # permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):
         """Retrieve the airports with name"""
@@ -89,7 +89,7 @@ class AirplaneViewSet(viewsets.ModelViewSet):
         methods=["POST"],
         detail=True,
         url_path="upload_image",
-        # permission_classes=[IsAdminUser],
+        permission_classes=[IsAdminUser],
     )
     def upload_image(self, request, pk=None):
         """Endpoint for uploading image to specific movie"""
@@ -101,7 +101,11 @@ class AirplaneViewSet(viewsets.ModelViewSet):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
-class CrewViewSet(viewsets.ModelViewSet):
+class CrewViewSet(
+    mixins.CreateModelMixin,
+    mixins.ListModelMixin,
+    GenericViewSet
+):
     queryset = Crew.objects.all()
     serializer_class = CrewSerializer
 
@@ -121,7 +125,11 @@ class CrewViewSet(viewsets.ModelViewSet):
         return queryset.distinct()
 
 
-class RouteViewSet(viewsets.ModelViewSet):
+class RouteViewSet(
+    mixins.CreateModelMixin,
+    mixins.ListModelMixin,
+    GenericViewSet
+):
     queryset = Route.objects.all()
     serializer_class = RouteSerializer
 
@@ -159,7 +167,12 @@ class OrderPagination(PageNumberPagination):
     max_page_size = 100
 
 
-class OrderViewSet(viewsets.ModelViewSet):
+class OrderViewSet(
+    mixins.CreateModelMixin,
+    mixins.ListModelMixin,
+    mixins.RetrieveModelMixin,
+    GenericViewSet
+):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
     pagination_class = OrderPagination
