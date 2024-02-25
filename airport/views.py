@@ -8,6 +8,7 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from airport.models import (
     Airport,
@@ -18,6 +19,7 @@ from airport.models import (
     Order,
     Flight
 )
+from airport.permissions import IsAdminOrIfAuthenticatedReadOnly
 from airport.serializers import (
     AirportSerializer,
     AirplaneTypeSerializer,
@@ -39,6 +41,8 @@ from airport.serializers import (
 class AirportViewSet(viewsets.ModelViewSet):
     queryset = Airport.objects.all()
     serializer_class = AirportSerializer
+    authentication_classes = (JWTAuthentication,)
+    permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
 
     def get_queryset(self):
         """Retrieve the airports with name"""
@@ -55,11 +59,15 @@ class AirportViewSet(viewsets.ModelViewSet):
 class AirplaneTypeViewSet(viewsets.ModelViewSet):
     queryset = AirplaneType.objects.all()
     serializer_class = AirplaneTypeSerializer
+    authentication_classes = (JWTAuthentication,)
+    permission_classes = (IsAdminUser,)
 
 
 class AirplaneViewSet(viewsets.ModelViewSet):
     queryset = Airplane.objects.all()
     serializer_class = AirplaneSerializer
+    authentication_classes = (JWTAuthentication,)
+    permission_classes = (IsAdminUser,)
 
     def get_queryset(self):
         """Retrieve the airplanes with name"""
@@ -108,6 +116,8 @@ class CrewViewSet(
 ):
     queryset = Crew.objects.all()
     serializer_class = CrewSerializer
+    authentication_classes = (JWTAuthentication,)
+    permission_classes = (IsAdminUser,)
 
     def get_queryset(self):
         """Retrieve the crews with first_name and last_name"""
@@ -132,6 +142,8 @@ class RouteViewSet(
 ):
     queryset = Route.objects.all()
     serializer_class = RouteSerializer
+    authentication_classes = (JWTAuthentication,)
+    permission_classes = (IsAdminUser,)
 
     def get_queryset(self):
         """Retrieve the crews with first_name and last_name"""
@@ -176,6 +188,8 @@ class OrderViewSet(
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
     pagination_class = OrderPagination
+    authentication_classes = (JWTAuthentication,)
+    permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
 
     def get_queryset(self):
         date = self.request.query_params.get("date")
@@ -212,6 +226,8 @@ class OrderViewSet(
 class FlightViewSet(viewsets.ModelViewSet):
     queryset = Flight.objects.all()
     serializer_class = FlightSerializer
+    authentication_classes = (JWTAuthentication,)
+    permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
 
     def get_queryset(self):
         source = self.request.query_params.get("source")
