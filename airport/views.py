@@ -4,6 +4,7 @@ from django.db.models import Count, F
 from rest_framework import viewsets, status
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.decorators import action
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 
@@ -153,9 +154,15 @@ class RouteViewSet(viewsets.ModelViewSet):
         return serializer
 
 
+class OrderPagination(PageNumberPagination):
+    page_size = 3
+    max_page_size = 100
+
+
 class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
+    pagination_class = OrderPagination
 
     def get_queryset(self):
         date = self.request.query_params.get("date")
