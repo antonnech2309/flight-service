@@ -1,7 +1,16 @@
 from django.db import transaction
 from rest_framework import serializers
 
-from airport.models import Airport, AirplaneType, Airplane, Crew, Route, Order, Ticket, Flight
+from airport.models import (
+    Airport,
+    AirplaneType,
+    Airplane,
+    Crew,
+    Route,
+    Order,
+    Ticket,
+    Flight
+)
 
 
 class AirportSerializer(serializers.ModelSerializer):

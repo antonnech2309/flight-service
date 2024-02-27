@@ -5,7 +5,7 @@ from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework import viewsets, status, mixins
 from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.permissions import IsAdminUser
+from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 from rest_framework_simplejwt.authentication import JWTAuthentication
@@ -69,11 +69,15 @@ class AirportViewSet(viewsets.ModelViewSet):
         return super().list(request, *args, **kwargs)
 
 
-class AirplaneTypeViewSet(viewsets.ModelViewSet):
+class AirplaneTypeViewSet(
+    mixins.CreateModelMixin,
+    mixins.ListModelMixin,
+    GenericViewSet
+):
     queryset = AirplaneType.objects.all()
     serializer_class = AirplaneTypeSerializer
-    authentication_classes = (JWTAuthentication,)
-    permission_classes = (IsAdminUser,)
+    # authentication_classes = (JWTAuthentication,)
+    # permission_classes = (IsAdminUser,)
 
 
 class AirplaneViewSet(viewsets.ModelViewSet):
@@ -252,10 +256,10 @@ class OrderViewSet(
     serializer_class = OrderSerializer
     pagination_class = OrderPagination
     authentication_classes = (JWTAuthentication,)
-    permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
+    permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):
-        date = self.request.query_params.get("date")
+        date = self.request.query_params.get("created_at")
 
         queryset = self.queryset
 
@@ -341,8 +345,7 @@ class FlightViewSet(viewsets.ModelViewSet):
                     "airplane"
                 )
                 .annotate(
-                    tickets_available=
-                    F("airplane__rows") *
+                    tickets_available=F("airplane__rows") *
                     F("airplane__seats_in_row") -
                     Count("taken_seats")
                 )
