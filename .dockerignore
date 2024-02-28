@@ -4,3 +4,5 @@ README.md
 vol
 .python-version
 .venv
+.idea
+__pycache__
