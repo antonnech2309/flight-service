@@ -29,3 +29,6 @@ docker-compose up
 
 - create user via /api/user/register/
 - get access token via /api/user/token/
+
+## API Documentation url
+/api/doc/swagger/
