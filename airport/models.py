@@ -1,5 +1,10 @@
+import os
+import uuid
+
 from django.contrib.auth import get_user_model
 from django.db import models
+from django.utils.text import slugify
+from rest_framework.exceptions import ValidationError
 
 
 class Airport(models.Model):
@@ -17,6 +22,13 @@ class AirplaneType(models.Model):
         return self.name
 
 
+def airplane_image_file_path(instance, filename):
+    _, extension = os.path.splitext(filename)
+    filename = f"{slugify(instance.name)}-{uuid.uuid4()}{extension}"
+
+    return os.path.join("uploads/airplanes/", filename)
+
+
 class Airplane(models.Model):
     name = models.CharField(max_length=255)
     rows = models.IntegerField()
@@ -26,6 +38,7 @@ class Airplane(models.Model):
         on_delete=models.CASCADE,
         related_name="airplanes"
     )
+    image = models.ImageField(null=True, upload_to=airplane_image_file_path)
 
     def __str__(self):
         return self.name
@@ -102,6 +115,7 @@ class Ticket(models.Model):
     flight = models.ForeignKey(
         Flight,
         on_delete=models.CASCADE,
+        related_name="taken_seats"
     )
     order = models.ForeignKey(
         Order,
@@ -113,3 +127,28 @@ class Ticket(models.Model):
 
     class Meta:
         default_related_name = "tickets"
+        unique_together = ("seat", "row", "flight")
+
+    @staticmethod
+    def validate_seat(
+            seat: int,
+            num_seats: int,
+            row: int,
+            num_rows: int,
+            error_to_raise
+    ):
+        if not (1 <= seat <= num_seats):
+            raise error_to_raise({
+                "seat": f"seat must be in the range [1, {num_seats}]"
+            })
+
+        if not (1 <= row <= num_rows):
+            raise error_to_raise({
+                "row": f"row must be in the range [1, {num_rows}]"
+            })
+
+    def clean(self):
+        Ticket.validate_seat(
+            self.seat, self.flight.airplane.seats_in_row,
+            self.row, self.flight.airplane.rows, ValidationError
+        )
