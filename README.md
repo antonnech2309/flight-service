@@ -43,3 +43,7 @@ docker-compose up
 - Throttling
 - Uploading images for airplanes
 - Email instead of username
+- Docker support
+- Tests for all endpoints
+- Optimized queries
+- Fields tickets_available and taken_seats for flights
