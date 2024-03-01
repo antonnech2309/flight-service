@@ -44,7 +44,7 @@ class AirportViewSet(viewsets.ModelViewSet):
     authentication_classes = (JWTAuthentication,)
     permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
 
-    def get_queryset(self):
+    def get_queryset(self) -> Airport:
         """Retrieve the airports with name"""
         name = self.request.query_params.get("name")
 
@@ -86,7 +86,7 @@ class AirplaneViewSet(viewsets.ModelViewSet):
     authentication_classes = (JWTAuthentication,)
     permission_classes = (IsAdminUser,)
 
-    def get_queryset(self):
+    def get_queryset(self) -> Airplane:
         """Retrieve the airplanes with name"""
         name = self.request.query_params.get("name")
 
@@ -129,7 +129,7 @@ class AirplaneViewSet(viewsets.ModelViewSet):
         url_path="upload_image",
         permission_classes=[IsAdminUser],
     )
-    def upload_image(self, request, pk=None):
+    def upload_image(self, request, pk=None) -> Response:
         """Endpoint for uploading image to specific movie"""
         airplane = self.get_object()
         serializer = self.get_serializer(airplane, data=request.data)
@@ -149,7 +149,7 @@ class CrewViewSet(
     authentication_classes = (JWTAuthentication,)
     permission_classes = (IsAdminUser,)
 
-    def get_queryset(self):
+    def get_queryset(self) -> Crew:
         """Retrieve the crews with first_name and last_name"""
         first_name = self.request.query_params.get("first_name")
         last_name = self.request.query_params.get("last_name")
@@ -194,7 +194,7 @@ class RouteViewSet(
     authentication_classes = (JWTAuthentication,)
     permission_classes = (IsAdminUser,)
 
-    def get_queryset(self):
+    def get_queryset(self) -> Route:
         """Retrieve the crews with first_name and last_name"""
         source = self.request.query_params.get("source")
         destination = self.request.query_params.get("destination")
@@ -258,7 +258,7 @@ class OrderViewSet(
     authentication_classes = (JWTAuthentication,)
     permission_classes = (IsAuthenticated,)
 
-    def get_queryset(self):
+    def get_queryset(self) -> Order:
         date = self.request.query_params.get("created_at")
 
         queryset = self.queryset
@@ -299,7 +299,7 @@ class OrderViewSet(
 
         return serializer
 
-    def perform_create(self, serializer):
+    def perform_create(self, serializer) -> None:
         serializer.save(user=self.request.user)
 
 
@@ -309,7 +309,7 @@ class FlightViewSet(viewsets.ModelViewSet):
     authentication_classes = (JWTAuthentication,)
     permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
 
-    def get_queryset(self):
+    def get_queryset(self) -> Flight:
         source = self.request.query_params.get("source")
         destination = self.request.query_params.get("destination")
         departure_date = self.request.query_params.get("departure_date")

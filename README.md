@@ -32,3 +32,18 @@ docker-compose up
 
 ## API Documentation url
 /api/doc/swagger/
+
+## Features
+- JWT authentication
+- Admin panel /admin/
+- Swagger documentation
+- Filtering of flights, airports and airlines and etc.
+- Pagination
+- Creating orders with tickets
+- Throttling
+- Uploading images for airplanes
+- Email instead of username
+- Docker support
+- Tests for all endpoints
+- Optimized queries
+- Fields tickets_available and taken_seats for flights
