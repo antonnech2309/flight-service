@@ -150,7 +150,7 @@ class FlightNameSerializer(FlightListSerializer):
 
 
 class TicketSerializer(serializers.ModelSerializer):
-    def validate(self, attrs):
+    def validate(self, attrs: dict) -> dict:
         data = super(TicketSerializer, self).validate(attrs)
         Ticket.validate_seat(
             attrs["seat"],
@@ -185,7 +185,7 @@ class OrderSerializer(serializers.ModelSerializer):
         model = Order
         fields = ("id", "tickets", "created_at")
 
-    def create(self, validated_data):
+    def create(self, validated_data) -> Order:
         with transaction.atomic():
             tickets_data = validated_data.pop("tickets")
             order = Order.objects.create(**validated_data)

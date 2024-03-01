@@ -136,7 +136,7 @@ class Ticket(models.Model):
             row: int,
             num_rows: int,
             error_to_raise
-    ):
+    ) -> None:
         if not (1 <= seat <= num_seats):
             raise error_to_raise({
                 "seat": f"seat must be in the range [1, {num_seats}]"
